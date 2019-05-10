@@ -15,7 +15,7 @@ def build(df):
     for _, row in df.iterrows():
         dataset.append((row.question, ptoi[row.context], row.context))
     return (
-        pd.DataFrame(dataset, columns=["question", "ctxid", "relevant"]),
+        pd.DataFrame(dataset, columns=["question", "ctxid", "context"]),
         ptoi,
         itop,
         passages,
@@ -23,7 +23,8 @@ def build(df):
 
 
 df = pd.DataFrame(list(v1))
-df = df.loc[df.is_train]
+df = df.loc[~df.is_train]
+df, ptoi, itop, passages = build(df)
 df = df.sample(df.shape[0])
 df = df.reset_index()
 df = df[:10]  # keep it small for now
@@ -37,19 +38,10 @@ docs = list(set(df.context))
 x = vec.fit_transform(docs)
 qv = vec.transform(df.question)
 result = pd.np.argmax(pd.np.einsum("kd,md->km", x, qv), axis=0)
-print("documents", x.shape)
-print("questions", qv.shape)
-print("matches  ", result.shape)
+print(result)
 
 tfidf = TfidfVectorizer()
 x = tfidf.fit_transform(docs).todense()
 qv = tfidf.transform(df.question).todense()
-print("documents", x.shape)
-print("questions", qv.shape)
 tf_result = pd.np.argmax(pd.np.einsum("kd,md->km", x, qv), axis=0)
-print("matches  ", result.shape)
-
-match = tf_result == result
-print(match.mean())
-df = pd.DataFrame({"word": tf_result, "char": result})
-print(df.head())
+print(tf_result)
