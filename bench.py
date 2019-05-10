@@ -1,5 +1,5 @@
 import pandas as pd
-from squad_df import v2
+from squad_df import v1
 from sklearn.feature_extraction.text import TfidfVectorizer
 from word_hash import CharIdf
 from collections import Counter
@@ -22,11 +22,11 @@ def build(df):
     )
 
 
-df = pd.DataFrame(list(v2))
+df = pd.DataFrame(list(v1))
 df = df.loc[df.is_train]
 df = df.sample(df.shape[0])
 df = df.reset_index()
-df = df[:10000]  # keep it small for now
+df = df[:10]  # keep it small for now
 all_text = "".join(text_to_words(" ".join(df.context).lower()))
 all_letters = [letter for letter, count in Counter(all_text).most_common(50)]
 print(all_letters)
